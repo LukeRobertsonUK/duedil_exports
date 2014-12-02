@@ -12,7 +12,7 @@ include FileUtils
 # setup
 input_file = "input.txt"
 sets_of_accounts_to_export = 4
-account_fields_to_export = ["date", "turnover", "operating_profits", "shareholder_funds"]
+account_fields_to_export = ["date", "turnover", "operating_profits"]
 output_file = "output.csv"
 
 # Pull in companies from input file
