@@ -9,44 +9,28 @@ require_relative 'account'
 
 include FileUtils
 
+# setup
+input_file = "input.txt"
+sets_of_accounts_to_export = 4
+account_fields_to_export = ["date", "turnover", "operating_profits", "shareholder_funds"]
+output_file = "output.csv"
+
+# Pull in companies from input file
 puts `clear`
 puts "Importing IDs..."
+collection = Collection.new(input_file, sets_of_accounts_to_export, account_fields_to_export)
 
-# Pull in data from input file
-f = File.new('input.txt', 'r')
-begin
-  array_of_ids = []
-  f.each do |line|
-    array_of_ids << line.chomp
-  end
-  collection = Collection.new(array_of_ids)
-ensure
-  f.close
-end
 
 # get the last 3 statutory accounts
-puts `clear`
-counter = 0
-puts "Fetching accounts from DueDil: #{counter}"
-collection.companies.each do |company|
-  company.get_statutory_accounts(3)
-  counter += 1
-  puts `clear`
-  puts "Fetching accounts from DueDil: #{counter}"
-end
-
-binding.pry
-
+collection.pull_from_duedil
 
 # save data to output file
-output_file = File.new("output.csv", 'w')
-begin
-  output_file.puts "ID,DATE (0),TURNOVER (0),DATE (-1),TURNOVER (-1),DATE (-2),TURNOVER (-2)"
-  collection.companies.each do |company|
-    output_file.puts company.output
-  end
-ensure
-  output_file.close
-  puts "SUCCESS!"
-end
+collection.output(output_file)
+puts `clear`
+puts "******************************************************************"
+puts "Companies: #{collection.companies.count}"
+puts "Historic Accounts :#{collection.number_of_accounts}"
+puts "Fields: #{collection.fields.join(', ')}"
+puts "******************************************************************"
+
 

@@ -24,9 +24,9 @@ class Company
     end
   end
 
-  def output
+  def output(account_fields_to_export)
     [@id,
-      @accounts.map {|account| account.output}
+      @accounts.map {|account| account.output(account_fields_to_export)}
     ].join(',')
   end
 

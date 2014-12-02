@@ -9,9 +9,8 @@ class Account
   end
 
   # define which items to export from each set of accounts here
-  def output
-    [@date,
-      @data["turnover"] ].join(',')
+  def output (account_fields_to_export)
+    account_fields_to_export.map {|field| @data[field]}.join(',')
   end
 
 
