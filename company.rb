@@ -1,44 +1,33 @@
 class Company
-  attr_accessor :id, :year_zero_date, :year_zero_turnover, :year_minus_one_date, :year_minus_one_turnover, :year_minus_two_date, :year_minus_two_turnover
+  attr_reader :accounts
 
   def initialize(id)
     @id = id
-    @year_zero_date
-    @year_zero_turnover
-    @year_minus_one_date
-    @year_minus_one_turnover
-    @year_minus_two_date
-    @year_minus_two_turnover
+    @accounts = []
   end
 
-  def make_id_to_eight_digits
-    @id.length < 8 ? condition = true : condition = false
+  def standardize_id_length(digits)
+    @id.length < digits ? condition = true : condition = false
     while condition
       @id = "0#{@id}"
-      condition = false if @id.length > 7
+      condition = false if @id.length > (digits -1)
     end
+    return self
   end
 
-  def get_accounts_data
+  def get_statutory_accounts(number)
     client = Duedil.new
-    list_response = client.get_page(@id, "accounts")["data"].reject{|account| account["type"] != "statutory" }.sort_by{|account| account["date"]}.reverse
-    if list_response[0]
-      @year_zero_date = list_response[0]["date"]
-      @year_zero_turnover = client.get(list_response[0]["uri"])["turnover"]
+    accounts_list = client.get_page_by_company_id("uk", @id, "accounts").reject{|account| account["type"] != "statutory" }.sort_by{|account| account["date"]}.reverse
+    accounts_list[0..(number-1)].each do |list_item|
+      account = Account.new(list_item["date"], list_item["type"], list_item["uri"])
+      @accounts << account
     end
-    if list_response[1]
-      @year_minus_one_date = list_response[1]["date"]
-      @year_minus_one_turnover = client.get(list_response[1]["uri"])["turnover"]
-    end
-    if list_response[2]
-      @year_minus_two_date = list_response[2]["date"]
-      @year_minus_two_turnover = client.get(list_response[2]["uri"])["turnover"]
-    end
-
   end
 
-  def company_string
-    "#{@id},#{@year_zero_date},#{@year_zero_turnover},#{@year_minus_one_date},#{@year_minus_one_turnover},#{@year_minus_two_date},#{@year_minus_two_turnover}"
+  def output
+    [@id,
+      @accounts.map {|account| account.output}
+    ].join(',')
   end
 
 

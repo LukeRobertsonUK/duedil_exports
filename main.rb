@@ -4,46 +4,49 @@ require 'date'
 
 require_relative 'company'
 require_relative 'duedil'
+require_relative 'collection'
+require_relative 'account'
 
 include FileUtils
 
 puts `clear`
-puts "LOADING DATA..."
+puts "Importing IDs..."
 
 # Pull in data from input file
 f = File.new('input.txt', 'r')
 begin
-  ids_array = []
+  array_of_ids = []
   f.each do |line|
-    ids_array << line.chomp
+    array_of_ids << line.chomp
   end
-  companies_array = ids_array.map { |id| Company.new(id) }
+  collection = Collection.new(array_of_ids)
 ensure
   f.close
 end
 
-# make sure company ids are 8 digits
-companies_array.each { |company| company.make_id_to_eight_digits}
-
-# get account data for each company
+# get the last 3 statutory accounts
+puts `clear`
 counter = 0
-
-companies_array.each do |company|
-  company.get_accounts_data
+puts "Fetching accounts from DueDil: #{counter}"
+collection.companies.each do |company|
+  company.get_statutory_accounts(3)
   counter += 1
   puts `clear`
-  puts counter
+  puts "Fetching accounts from DueDil: #{counter}"
 end
 
-# save data to output file
+binding.pry
 
-output_file = File.new("output.txt", 'w')
+
+# save data to output file
+output_file = File.new("output.csv", 'w')
 begin
-  output_file.puts "id,date_year0,turnover_year0,date_year-1,turnover_year-1,date_year-2,turnover_year-2"
-  companies_array.each do |company|
-    output_file.puts company.company_string
+  output_file.puts "ID,DATE (0),TURNOVER (0),DATE (-1),TURNOVER (-1),DATE (-2),TURNOVER (-2)"
+  collection.companies.each do |company|
+    output_file.puts company.output
   end
 ensure
   output_file.close
+  puts "SUCCESS!"
 end
 
