@@ -29,7 +29,7 @@ collection.output(output_file)
 puts `clear`
 puts "******************************************************************"
 puts "Companies: #{collection.companies.count}"
-puts "Historic Accounts :#{collection.number_of_accounts}"
+puts "Historic Accounts: #{collection.number_of_accounts}"
 puts "Fields: #{collection.fields.join(', ')}"
 puts "******************************************************************"
 
