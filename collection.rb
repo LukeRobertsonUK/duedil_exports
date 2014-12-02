@@ -1,9 +1,10 @@
 class Collection
-  attr_reader :companies, :number_of_accounts, :fields
+  attr_reader :companies, :number_of_accounts, :fields, :fields_to_cagr
 
-  def initialize(input_file, number_of_accounts, fields)
+  def initialize(input_file, number_of_accounts, fields, fields_to_cagr)
     @number_of_accounts = number_of_accounts
     @fields = fields
+    @fields_to_cagr = fields_to_cagr
     f = File.new(input_file, 'r')
     begin
       array_of_ids = []
@@ -33,6 +34,8 @@ class Collection
       array << @fields.map {|field| "#{field} (#{0 - counter})"}
       counter += 1
     end
+    array << "cagr_years"
+    array << @fields_to_cagr.map {|field| "#{field}_cagr_percentage"}
     return array.flatten.join(',')
   end
 
@@ -41,7 +44,7 @@ class Collection
     begin
       output_file.puts self.row_header
       @companies.each do |company|
-        output_file.puts company.output(@fields)
+        output_file.puts company.output(@fields, @fields_to_cagr, @number_of_accounts)
       end
     ensure
       output_file.close

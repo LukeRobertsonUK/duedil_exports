@@ -1,5 +1,5 @@
 class Account
-  attr_reader :data
+  attr_reader :data, :date
 
   def initialize(date, type, url)
     @date = date
@@ -8,7 +8,6 @@ class Account
     @data = Duedil.new.get(@url)
   end
 
-  # define which items to export from each set of accounts here
   def output (account_fields_to_export)
     account_fields_to_export.map {|field| @data[field]}.join(',')
   end
